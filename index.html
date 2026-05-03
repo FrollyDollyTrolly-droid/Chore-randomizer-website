@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Chore Picker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header,
+    .card,
+    .home-card {
+      background: white;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #64748b;
+      margin-bottom: 0;
+    }
+
+    .home-wrap {
+      min-height: 80vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .home-card {
+      width: min(700px, 100%);
+      text-align: center;
+      padding: 34px;
+    }
+
+    .home-buttons,
+    .tabs,
+    .name-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .home-buttons {
+      margin-top: 22px;
+    }
+
+    .code-box {
+      margin-top: 22px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 16px;
+      min-width: 230px;
+    }
+
+    .code-message {
+      width: 100%;
+      margin: 6px 0 0;
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    button:hover {
+      background: #cbd5e1;
+    }
+
+    button.active,
+    button.primary {
+      background: #0f172a;
+      color: white;
+    }
+
+    .big-button {
+      font-size: 18px;
+      padding: 18px 24px;
+      min-width: 190px;
+    }
+
+    .small-button {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-radius: 12px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .chore-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .chore-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+    }
+
+    .chore-item.done {
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .chore-item.done .chore-name {
+      text-decoration: line-through;
+      color: #475569;
+    }
+
+    .status-pill {
+      background: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .small-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .small-chore {
+      border-top: 1px solid #e2e8f0;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+
+    .small-chore:first-of-type {
+      border-top: 0;
+    }
+
+    .done-text {
+      color: #15803d;
+      font-weight: bold;
+    }
+
+    .not-done-text {
+      color: #64748b;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .info-box {
+      margin-top: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 14px;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      .layout,
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section id="homeScreen" class="home-wrap">
+      <div class="home-card">
+        <p class="subtitle">Daily family chores</p>
+        <h1>Random Chore Picker</h1>
+        <p class="subtitle">Enter the family code first.</p>
+
+        <div id="codeBox" class="code-box">
+          <input id="familyCodeInput" type="password" placeholder="Enter code" onkeydown="checkCodeOnEnter(event)" />
+          <button type="button" class="small-button" onclick="toggleCodeVisibility()" id="seeCodeButton">See</button>
+          <button class="primary" onclick="checkFamilyCode()">Enter</button>
+          <p id="codeMessage" class="code-message"></p>
+        </div>
+
+        <div id="roleChooser" class="hidden">
+          <p class="subtitle">Choose whether you are a child or a parent.</p>
+          <div class="home-buttons">
+            <button class="primary big-button" onclick="showScreen('kid')">I am a child</button>
+            <button class="big-button" onclick="showScreen('parent')">I am a parent</button>
+          </div>
+
+          <div class="info-box">
+            Chores are automatically randomized once per day. The randomizer tries to stop the same person from getting the same chore again until at least two days later.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="appScreen" class="hidden">
+      <div class="header">
+        <div>
+          <p class="subtitle">Daily family chores</p>
+          <h1>Random Chore Picker</h1>
+          <p class="subtitle" id="dateTextHeader"></p>
+        </div>
+
+        <div class="tabs">
+          <button onclick="showScreen('home')">Home</button>
+        </div>
+      </div>
+
+      <section id="kidScreen" class="layout">
+        <div class="card">
+          <h2>Who are you?</h2>
+          <div id="nameButtons" class="name-buttons"></div>
+          <p class="subtitle">Choose your name, do your chores, then check them off when finished.</p>
+        </div>
+
+        <div class="card">
+          <div class="top-row">
+            <div>
+              <h2 id="personTitle">Freja's chores</h2>
+              <p class="subtitle" id="dateText"></p>
+            </div>
+            <div class="status-pill" id="personProgress">0/0 done</div>
+          </div>
+
+          <div id="kidChores" class="chore-list"></div>
+        </div>
+      </section>
+
+      <section id="parentScreen" class="hidden">
+        <div class="card">
+          <div class="top-row">
+            <div>
+              <h2>Parent dashboard</h2>
+              <p class="subtitle">See who completed what today.</p>
+            </div>
+            <div class="status-pill" id="totalProgress">0/0 completed</div>
+          </div>
+
+          <div class="info-box">
+            Chores are automatically randomized each day. Parents can view progress, but they do not choose the assignments.
+          </div>
+
+          <div id="parentDashboard" class="dashboard-grid"></div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    const familyCodes = ["thejensens", "jensens"];
+    const familyMembers = ["FJ", "NJ", "TJ"];
+
+    const defaultChores = [
+      "Cat litter",
+      "Wash water bottles",
+      "Laundry",
+      "Dishwasher",
+      "Vacuuming",
+      "Washing the floor",
+      "Put clothing in the cabinets",
+      "Tidying up",
+      "Garbage"
+    ];
+
+    let selectedPerson = familyMembers[0];
+    let assignments = {};
+    let currentDate = getTodayKey();
+    let choreHistory = {};
+
+    function getTodayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getDateNDaysAgo(daysAgo) {
+      const date = new Date();
+      date.setDate(date.getDate() - daysAgo);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function wasRecentlyAssigned(person, choreName) {
+      const yesterday = getDateNDaysAgo(1);
+      const twoDaysAgo = getDateNDaysAgo(2);
+      const yesterdayChores = choreHistory[yesterday]?.[person] || [];
+      const twoDaysAgoChores = choreHistory[twoDaysAgo]?.[person] || [];
+      return yesterdayChores.includes(choreName) || twoDaysAgoChores.includes(choreName);
+    }
+
+    function createSmartAssignments(chores) {
+      const newAssignments = {};
+      const availableChores = shuffle(chores);
+
+      familyMembers.forEach(person => {
+        newAssignments[person] = [];
+      });
+
+      availableChores.forEach(choreName => {
+        const possiblePeople = shuffle(familyMembers);
+        const maxChoresPerPerson = Math.ceil(chores.length / familyMembers.length);
+
+        let chosenPerson = possiblePeople.find(person => {
+          const hasTooMany = newAssignments[person].length >= maxChoresPerPerson;
+          return !hasTooMany && !wasRecentlyAssigned(person, choreName);
+        });
+
+        if (!chosenPerson) {
+          chosenPerson = possiblePeople.find(person => {
+            return newAssignments[person].length < maxChoresPerPerson;
+          });
+        }
+
+        if (!chosenPerson) {
+          chosenPerson = possiblePeople.sort((a, b) => newAssignments[a].length - newAssignments[b].length)[0];
+        }
+
+        newAssignments[chosenPerson].push({
+          name: choreName,
+          completed: false,
+          completedAt: null
+        });
+      });
+
+      return newAssignments;
+    }
+
+    function saveData() {
+      localStorage.setItem("chorePickerData", JSON.stringify({
+        date: currentDate,
+        assignments: assignments,
+        choreHistory: choreHistory
+      }));
+    }
+
+    function saveTodayToHistory() {
+      choreHistory[currentDate] = {};
+
+      familyMembers.forEach(person => {
+        choreHistory[currentDate][person] = (assignments[person] || []).map(chore => chore.name);
+      });
+
+      const datesToKeep = [getTodayKey(), getDateNDaysAgo(1), getDateNDaysAgo(2)];
+      Object.keys(choreHistory).forEach(date => {
+        if (!datesToKeep.includes(date)) {
+          delete choreHistory[date];
+        }
+      });
+    }
+
+    function loadData() {
+      const today = getTodayKey();
+      const saved = localStorage.getItem("chorePickerData");
+
+      if (saved) {
+        const data = JSON.parse(saved);
+        choreHistory = data.choreHistory || {};
+
+        if (data.date === today) {
+          currentDate = data.date;
+          assignments = data.assignments;
+          saveTodayToHistory();
+          saveData();
+          return;
+        }
+      }
+
+      currentDate = today;
+      assignments = createSmartAssignments(defaultChores);
+      saveTodayToHistory();
+      saveData();
+    }
+
+    function checkFamilyCode() {
+      const input = document.getElementById("familyCodeInput").value
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+      const message = document.getElementById("codeMessage");
+
+      if (familyCodes.includes(input)) {
+        document.getElementById("codeBox").classList.add("hidden");
+        document.getElementById("roleChooser").classList.remove("hidden");
+        message.textContent = "";
+      } else {
+        message.textContent = "Wrong code. Try again.";
+      }
+    }
+
+    function toggleCodeVisibility() {
+      const input = document.getElementById("familyCodeInput");
+      const button = document.getElementById("seeCodeButton");
+
+      if (input.type === "password") {
+        input.type = "text";
+        button.textContent = "Don't see";
+      } else {
+        input.type = "password";
+        button.textContent = "See";
+      }
+    }
+
+    function checkCodeOnEnter(event) {
+      if (event.key === "Enter") {
+        checkFamilyCode();
+      }
+    }
+
+    function showScreen(screen) {
+      const homeScreen = document.getElementById("homeScreen");
+      const appScreen = document.getElementById("appScreen");
+      const kidScreen = document.getElementById("kidScreen");
+      const parentScreen = document.getElementById("parentScreen");
+
+      if (screen === "home") {
+        homeScreen.classList.remove("hidden");
+        appScreen.classList.add("hidden");
+        return;
+      }
+
+      homeScreen.classList.add("hidden");
+      appScreen.classList.remove("hidden");
+
+      if (screen === "kid") {
+        kidScreen.classList.remove("hidden");
+        parentScreen.classList.add("hidden");
+      } else {
+        kidScreen.classList.add("hidden");
+        parentScreen.classList.remove("hidden");
+      }
+
+      render();
+    }
+
+    function selectPerson(person) {
+      selectedPerson = person;
+      render();
+    }
+
+    function toggleChore(index) {
+      const chore = assignments[selectedPerson][index];
+      chore.completed = !chore.completed;
+      chore.completedAt = chore.completed ? new Date().toLocaleString() : null;
+      saveData();
+      render();
+    }
+
+    function renderNameButtons() {
+      const nameButtons = document.getElementById("nameButtons");
+      nameButtons.innerHTML = "";
+
+      familyMembers.forEach(person => {
+        const button = document.createElement("button");
+        button.textContent = person;
+        button.onclick = () => selectPerson(person);
+        if (person === selectedPerson) {
+          button.classList.add("active");
+        }
+        nameButtons.appendChild(button);
+      });
+    }
+
+    function renderKidChores() {
+      document.getElementById("personTitle").textContent = selectedPerson + "'s chores";
+      document.getElementById("dateText").textContent = "For " + currentDate;
+      document.getElementById("dateTextHeader").textContent = "Today is " + currentDate;
+
+      const chores = assignments[selectedPerson] || [];
+      const completed = chores.filter(chore => chore.completed).length;
+      document.getElementById("personProgress").textContent = completed + "/" + chores.length + " done";
+
+      const kidChores = document.getElementById("kidChores");
+      kidChores.innerHTML = "";
+
+      chores.forEach((chore, index) => {
+        const item = document.createElement("div");
+        item.className = "chore-item" + (chore.completed ? " done" : "");
+        item.onclick = () => toggleChore(index);
+
+        const name = document.createElement("span");
+        name.className = "chore-name";
+        name.textContent = chore.name;
+
+        const check = document.createElement("span");
+        check.textContent = chore.completed ? "✅" : "⬜";
+
+        item.appendChild(name);
+        item.appendChild(check);
+        kidChores.appendChild(item);
+      });
+    }
+
+    function renderParentDashboard() {
+      const dashboard = document.getElementById("parentDashboard");
+      dashboard.innerHTML = "";
+
+      let total = 0;
+      let completedTotal = 0;
+
+      familyMembers.forEach(person => {
+        const chores = assignments[person] || [];
+        const completed = chores.filter(chore => chore.completed).length;
+        total += chores.length;
+        completedTotal += completed;
+
+        const card = document.createElement("div");
+        card.className = "small-card";
+
+        const title = document.createElement("h3");
+        title.textContent = person + " — " + completed + "/" + chores.length;
+        card.appendChild(title);
+
+        chores.forEach(chore => {
+          const row = document.createElement("div");
+          row.className = "small-chore";
+
+          const choreName = document.createElement("div");
+          choreName.textContent = chore.name;
+
+          const status = document.createElement("div");
+          if (chore.completed) {
+            status.className = "done-text";
+            status.textContent = "Done: " + chore.completedAt;
+          } else {
+            status.className = "not-done-text";
+            status.textContent = "Not done yet";
+          }
+
+          row.appendChild(choreName);
+          row.appendChild(status);
+          card.appendChild(row);
+        });
+
+        dashboard.appendChild(card);
+      });
+
+      document.getElementById("totalProgress").textContent = completedTotal + "/" + total + " completed";
+    }
+
+    function render() {
+      renderNameButtons();
+      renderKidChores();
+      renderParentDashboard();
+    }
+
+    loadData();
+    render();
+  </script>
+</body>
+</html>
