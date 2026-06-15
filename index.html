@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Random Chore Picker</title>
+
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -22,9 +21,7 @@
       padding: 20px;
     }
 
-    .header,
-    .card,
-    .home-card {
+    .header, .card, .home-card {
       background: white;
       border-radius: 22px;
       padding: 22px;
@@ -40,11 +37,7 @@
       flex-wrap: wrap;
     }
 
-    h1,
-    h2,
-    h3 {
-      margin-top: 0;
-    }
+    h1, h2, h3 { margin-top: 0; }
 
     .subtitle {
       color: #64748b;
@@ -63,27 +56,14 @@
       padding: 34px;
     }
 
-    .home-buttons,
-    .tabs,
-    .name-buttons {
+    .home-buttons, .tabs, .name-buttons, .code-box {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    .home-buttons {
-      margin-top: 22px;
-    }
-
-    .code-box {
-      margin-top: 22px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .home-buttons, .code-box { margin-top: 22px; }
 
     input {
       border: 2px solid #e2e8f0;
@@ -110,15 +90,10 @@
       color: #0f172a;
     }
 
-    button:hover {
-      background: #cbd5e1;
-    }
-
-    button.active,
-    button.primary {
-      background: #0f172a;
-      color: white;
-    }
+    button:hover { background: #cbd5e1; }
+    button.active, button.primary { background: #0f172a; color: white; }
+    button.danger { background: #fee2e2; color: #991b1b; }
+    button.danger:hover { background: #fecaca; }
 
     .big-button {
       font-size: 18px;
@@ -138,9 +113,7 @@
       gap: 20px;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     .chore-list {
       display: grid;
@@ -196,18 +169,9 @@
       font-size: 14px;
     }
 
-    .small-chore:first-of-type {
-      border-top: 0;
-    }
-
-    .done-text {
-      color: #15803d;
-      font-weight: bold;
-    }
-
-    .not-done-text {
-      color: #64748b;
-    }
+    .small-chore:first-of-type { border-top: 0; }
+    .done-text { color: #15803d; font-weight: bold; }
+    .not-done-text { color: #64748b; }
 
     .top-row {
       display: flex;
@@ -227,14 +191,35 @@
       font-size: 14px;
     }
 
+    .task-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: white;
+    }
+
+    .task-name {
+      font-weight: bold;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
     @media (max-width: 800px) {
-      .layout,
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
+      .layout, .dashboard-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
+
 <body>
   <div class="page">
     <section id="homeScreen" class="home-wrap">
@@ -258,7 +243,7 @@
           </div>
 
           <div class="info-box">
-            Chores are automatically randomized once per day. The randomizer tries to stop the same person from getting the same chore again until at least two days later.
+            Chores are saved online with Firebase, so different devices should match.
           </div>
         </div>
       </div>
@@ -287,7 +272,7 @@
         <div class="card">
           <div class="top-row">
             <div>
-              <h2 id="personTitle">Freja's chores</h2>
+              <h2 id="personTitle">FJ's chores</h2>
               <p class="subtitle" id="dateText"></p>
             </div>
             <div class="status-pill" id="personProgress">0/0 done</div>
@@ -307,17 +292,63 @@
             <div class="status-pill" id="totalProgress">0/0 completed</div>
           </div>
 
+          <div class="edit-actions">
+            <button class="primary" onclick="showScreen('edit')">Edit tasks</button>
+          </div>
+
           <div class="info-box">
-            Chores are automatically randomized each day. Parents can view progress, but they do not choose the assignments.
+            Chores are automatically randomized each day. Parents can view progress and edit the task list.
           </div>
 
           <div id="parentDashboard" class="dashboard-grid"></div>
         </div>
       </section>
+
+      <section id="editScreen" class="hidden">
+        <div class="card">
+          <div class="top-row">
+            <div>
+              <h2>Edit tasks</h2>
+              <p class="subtitle">Add or delete chores. Changes save for everyone.</p>
+            </div>
+            <button onclick="showScreen('parent')">Back to parent page</button>
+          </div>
+
+          <div class="info-box">
+            When you add or delete a task, today’s chores will be randomized again using the new task list.
+          </div>
+
+          <div class="edit-actions">
+            <input id="newTaskInput" type="text" placeholder="Add a new task" onkeydown="addTaskOnEnter(event)" />
+            <button class="primary" onclick="addTask()">Add task</button>
+          </div>
+
+          <br />
+
+          <div id="taskEditorList"></div>
+        </div>
+      </section>
     </section>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database-compat.js"></script>
+
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA03kFw4ROpAUCHA29F9kSBVAmO5jSvCpc",
+      authDomain: "chore-randomizer-5892f.firebaseapp.com",
+      databaseURL: "https://chore-randomizer-5892f-default-rtdb.firebaseio.com",
+      projectId: "chore-randomizer-5892f",
+      storageBucket: "chore-randomizer-5892f.firebasestorage.app",
+      messagingSenderId: "853235139421",
+      appId: "1:853235139421:web:949dffb2e327c919be5eb4"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const familyRef = database.ref("families/thejensens");
+
     const familyCodes = ["thejensens", "jensens"];
     const familyMembers = ["FJ", "NJ", "TJ"];
 
@@ -333,19 +364,28 @@
       "Garbage"
     ];
 
+    let tasks = [...defaultChores];
     let selectedPerson = familyMembers[0];
     let assignments = {};
     let currentDate = getTodayKey();
     let choreHistory = {};
+    let isSaving = false;
+
+    function formatLocalDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return year + "-" + month + "-" + day;
+    }
 
     function getTodayKey() {
-      return new Date().toISOString().slice(0, 10);
+      return formatLocalDate(new Date());
     }
 
     function getDateNDaysAgo(daysAgo) {
       const date = new Date();
       date.setDate(date.getDate() - daysAgo);
-      return date.toISOString().slice(0, 10);
+      return formatLocalDate(date);
     }
 
     function shuffle(items) {
@@ -368,6 +408,7 @@
     function createSmartAssignments(chores) {
       const newAssignments = {};
       const availableChores = shuffle(chores);
+      const maxChoresPerPerson = Math.ceil(chores.length / familyMembers.length);
 
       familyMembers.forEach(person => {
         newAssignments[person] = [];
@@ -375,7 +416,6 @@
 
       availableChores.forEach(choreName => {
         const possiblePeople = shuffle(familyMembers);
-        const maxChoresPerPerson = Math.ceil(chores.length / familyMembers.length);
 
         let chosenPerson = possiblePeople.find(person => {
           const hasTooMany = newAssignments[person].length >= maxChoresPerPerson;
@@ -402,22 +442,19 @@
       return newAssignments;
     }
 
-    function saveData() {
-      localStorage.setItem("chorePickerData", JSON.stringify({
-        date: currentDate,
-        assignments: assignments,
-        choreHistory: choreHistory
-      }));
-    }
+    function savePreviousDayToHistory(date, oldAssignments) {
+      if (!date || !oldAssignments) return;
 
-    function saveTodayToHistory() {
-      choreHistory[currentDate] = {};
+      choreHistory[date] = {};
 
       familyMembers.forEach(person => {
-        choreHistory[currentDate][person] = (assignments[person] || []).map(chore => chore.name);
+        choreHistory[date][person] = (oldAssignments[person] || []).map(chore => chore.name);
       });
+    }
 
+    function cleanOldHistory() {
       const datesToKeep = [getTodayKey(), getDateNDaysAgo(1), getDateNDaysAgo(2)];
+
       Object.keys(choreHistory).forEach(date => {
         if (!datesToKeep.includes(date)) {
           delete choreHistory[date];
@@ -425,28 +462,61 @@
       });
     }
 
-    function loadData() {
+    function saveToFirebase() {
+      isSaving = true;
+
+      familyRef.set({
+        date: currentDate,
+        tasks: tasks,
+        assignments: assignments,
+        choreHistory: choreHistory
+      }).finally(() => {
+        isSaving = false;
+      });
+    }
+
+    function resetTodayAssignments() {
+      currentDate = getTodayKey();
+      assignments = createSmartAssignments(tasks);
+      cleanOldHistory();
+      saveToFirebase();
+      render();
+    }
+
+    familyRef.on("value", snapshot => {
       const today = getTodayKey();
-      const saved = localStorage.getItem("chorePickerData");
+      const data = snapshot.val();
 
-      if (saved) {
-        const data = JSON.parse(saved);
-        choreHistory = data.choreHistory || {};
+      if (!data) {
+        currentDate = today;
+        tasks = [...defaultChores];
+        assignments = createSmartAssignments(tasks);
+        cleanOldHistory();
+        saveToFirebase();
+        render();
+        return;
+      }
 
-        if (data.date === today) {
-          currentDate = data.date;
-          assignments = data.assignments;
-          saveTodayToHistory();
-          saveData();
-          return;
-        }
+      tasks = data.tasks || [...defaultChores];
+      choreHistory = data.choreHistory || {};
+
+      if (data.date === today) {
+        currentDate = data.date;
+        assignments = data.assignments || createSmartAssignments(tasks);
+        render();
+        return;
+      }
+
+      if (data.date && data.assignments) {
+        savePreviousDayToHistory(data.date, data.assignments);
       }
 
       currentDate = today;
-      assignments = createSmartAssignments(defaultChores);
-      saveTodayToHistory();
-      saveData();
-    }
+      assignments = createSmartAssignments(tasks);
+      cleanOldHistory();
+      saveToFirebase();
+      render();
+    });
 
     function checkFamilyCode() {
       const input = document.getElementById("familyCodeInput").value
@@ -489,6 +559,7 @@
       const appScreen = document.getElementById("appScreen");
       const kidScreen = document.getElementById("kidScreen");
       const parentScreen = document.getElementById("parentScreen");
+      const editScreen = document.getElementById("editScreen");
 
       if (screen === "home") {
         homeScreen.classList.remove("hidden");
@@ -499,12 +570,20 @@
       homeScreen.classList.add("hidden");
       appScreen.classList.remove("hidden");
 
+      kidScreen.classList.add("hidden");
+      parentScreen.classList.add("hidden");
+      editScreen.classList.add("hidden");
+
       if (screen === "kid") {
         kidScreen.classList.remove("hidden");
-        parentScreen.classList.add("hidden");
-      } else {
-        kidScreen.classList.add("hidden");
+      }
+
+      if (screen === "parent") {
         parentScreen.classList.remove("hidden");
+      }
+
+      if (screen === "edit") {
+        editScreen.classList.remove("hidden");
       }
 
       render();
@@ -519,8 +598,47 @@
       const chore = assignments[selectedPerson][index];
       chore.completed = !chore.completed;
       chore.completedAt = chore.completed ? new Date().toLocaleString() : null;
-      saveData();
+      saveToFirebase();
       render();
+    }
+
+    function addTask() {
+      const input = document.getElementById("newTaskInput");
+      const newTask = input.value.trim();
+
+      if (!newTask) return;
+
+      const alreadyExists = tasks.some(task => task.toLowerCase() === newTask.toLowerCase());
+
+      if (alreadyExists) {
+        alert("That task already exists.");
+        return;
+      }
+
+      tasks.push(newTask);
+      input.value = "";
+      resetTodayAssignments();
+    }
+
+    function addTaskOnEnter(event) {
+      if (event.key === "Enter") {
+        addTask();
+      }
+    }
+
+    function deleteTask(index) {
+      if (tasks.length <= 1) {
+        alert("You need at least one task.");
+        return;
+      }
+
+      const taskName = tasks[index];
+      const confirmDelete = confirm("Delete this task: " + taskName + "?");
+
+      if (!confirmDelete) return;
+
+      tasks.splice(index, 1);
+      resetTodayAssignments();
     }
 
     function renderNameButtons() {
@@ -615,13 +733,36 @@
       document.getElementById("totalProgress").textContent = completedTotal + "/" + total + " completed";
     }
 
+    function renderTaskEditor() {
+      const taskEditorList = document.getElementById("taskEditorList");
+      taskEditorList.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const row = document.createElement("div");
+        row.className = "task-row";
+
+        const name = document.createElement("div");
+        name.className = "task-name";
+        name.textContent = task;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "danger";
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteTask(index);
+
+        row.appendChild(name);
+        row.appendChild(deleteButton);
+        taskEditorList.appendChild(row);
+      });
+    }
+
     function render() {
       renderNameButtons();
       renderKidChores();
       renderParentDashboard();
+      renderTaskEditor();
     }
 
-    loadData();
     render();
   </script>
 </body>
