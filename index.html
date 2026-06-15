@@ -6,13 +6,19 @@
   <title>Random Chore Picker</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box; 
+    }
 
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #0f172a;
+      background:
+        radial-gradient(circle at top left, #fbcfe8 0, transparent 28%),
+        radial-gradient(circle at top right, #bfdbfe 0, transparent 30%),
+        linear-gradient(135deg, #fff7ed, #eef2ff, #ecfeff);
+      color: #1e293b;
+      min-height: 100vh;
     }
 
     .page {
@@ -21,11 +27,15 @@
       padding: 20px;
     }
 
-    .header, .card, .home-card {
-      background: white;
-      border-radius: 22px;
-      padding: 22px;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    .header, 
+    .card, 
+    .home-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 14px 35px rgba(99, 102, 241, 0.16);
+      backdrop-filter: blur(10px);
     }
 
     .header {
@@ -35,9 +45,20 @@
       gap: 16px;
       margin-bottom: 20px;
       flex-wrap: wrap;
+      background: linear-gradient(135deg, #ffffff, #eff6ff);
     }
 
-    h1, h2, h3 { margin-top: 0; }
+    h1 {
+      margin-top: 0;
+      font-size: 42px;
+      background: linear-gradient(90deg, #ec4899, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    h2, h3 { 
+      margin-top: 0; 
+    }
 
     .subtitle {
       color: #64748b;
@@ -51,26 +72,50 @@
     }
 
     .home-card {
-      width: min(700px, 100%);
+      width: min(720px, 100%);
       text-align: center;
-      padding: 34px;
+      padding: 38px;
+      background:
+        linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, #f472b6, #a78bfa, #22d3ee) border-box;
+      border: 4px solid transparent;
     }
 
-    .home-buttons, .tabs, .name-buttons, .code-box {
+    .home-card::before {
+      content: "✨";
+      font-size: 42px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .home-buttons, 
+    .tabs, 
+    .name-buttons, 
+    .code-box {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    .home-buttons, .code-box { margin-top: 22px; }
+    .home-buttons, 
+    .code-box { 
+      margin-top: 22px; 
+    }
 
     input {
-      border: 2px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 12px 16px;
+      border: 2px solid #c4b5fd;
+      border-radius: 18px;
+      padding: 13px 16px;
       font-size: 16px;
       min-width: 230px;
+      background: #ffffff;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 4px #ede9fe;
     }
 
     .code-message {
@@ -82,29 +127,46 @@
 
     button {
       border: 0;
-      border-radius: 14px;
-      padding: 12px 16px;
+      border-radius: 18px;
+      padding: 12px 17px;
       cursor: pointer;
       font-weight: bold;
-      background: #e2e8f0;
-      color: #0f172a;
+      background: #e0f2fe;
+      color: #075985;
+      box-shadow: 0 5px 12px rgba(14, 165, 233, 0.16);
+      transition: 0.18s ease;
     }
 
-    button:hover { background: #cbd5e1; }
-    button.active, button.primary { background: #0f172a; color: white; }
-    button.danger { background: #fee2e2; color: #991b1b; }
-    button.danger:hover { background: #fecaca; }
+    button:hover {
+      transform: translateY(-2px);
+      background: #bae6fd;
+    }
+
+    button.active, 
+    button.primary {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      color: white;
+    }
+
+    button.danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    button.danger:hover {
+      background: #fecaca;
+    }
 
     .big-button {
       font-size: 18px;
-      padding: 18px 24px;
+      padding: 18px 26px;
       min-width: 190px;
     }
 
     .small-button {
       padding: 10px 12px;
       font-size: 13px;
-      border-radius: 12px;
+      border-radius: 14px;
     }
 
     .layout {
@@ -113,7 +175,9 @@
       gap: 20px;
     }
 
-    .hidden { display: none; }
+    .hidden { 
+      display: none; 
+    }
 
     .chore-list {
       display: grid;
@@ -125,16 +189,23 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      border: 2px solid #e2e8f0;
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
+      border: 2px solid #ddd6fe;
+      background: linear-gradient(135deg, #ffffff, #fdf4ff);
+      border-radius: 20px;
+      padding: 17px;
       cursor: pointer;
+      box-shadow: 0 8px 18px rgba(168, 85, 247, 0.08);
+      transition: 0.18s ease;
+    }
+
+    .chore-item:hover {
+      transform: scale(1.01);
+      border-color: #c084fc;
     }
 
     .chore-item.done {
-      background: #dcfce7;
-      border-color: #86efac;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border-color: #22c55e;
     }
 
     .chore-item.done .chore-name {
@@ -143,8 +214,9 @@
     }
 
     .status-pill {
-      background: #e2e8f0;
-      padding: 8px 12px;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+      padding: 9px 14px;
       border-radius: 999px;
       font-weight: bold;
       white-space: nowrap;
@@ -158,20 +230,35 @@
     }
 
     .small-card {
-      border: 2px solid #e2e8f0;
-      border-radius: 18px;
+      border: 2px solid #bfdbfe;
+      border-radius: 22px;
       padding: 16px;
+      background: linear-gradient(135deg, #ffffff, #eff6ff);
+      box-shadow: 0 8px 18px rgba(59, 130, 246, 0.1);
+    }
+
+    .small-card h3 {
+      color: #2563eb;
     }
 
     .small-chore {
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid #dbeafe;
       padding: 10px 0;
       font-size: 14px;
     }
 
-    .small-chore:first-of-type { border-top: 0; }
-    .done-text { color: #15803d; font-weight: bold; }
-    .not-done-text { color: #64748b; }
+    .small-chore:first-of-type { 
+      border-top: 0; 
+    }
+
+    .done-text {
+      color: #15803d;
+      font-weight: bold;
+    }
+
+    .not-done-text {
+      color: #64748b;
+    }
 
     .top-row {
       display: flex;
@@ -183,11 +270,11 @@
 
     .info-box {
       margin-top: 16px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 14px;
-      color: #475569;
+      background: linear-gradient(135deg, #fef9c3, #ffedd5);
+      border: 2px solid #fde68a;
+      border-radius: 20px;
+      padding: 15px;
+      color: #854d0e;
       font-size: 14px;
     }
 
@@ -196,11 +283,11 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      border: 2px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 14px;
+      border: 2px solid #fbcfe8;
+      border-radius: 20px;
+      padding: 15px;
       margin-bottom: 10px;
-      background: white;
+      background: linear-gradient(135deg, #ffffff, #fdf2f8);
     }
 
     .task-name {
@@ -214,8 +301,27 @@
       margin-top: 18px;
     }
 
+    #kidScreen .card:first-child {
+      background: linear-gradient(135deg, #ffffff, #ecfeff);
+    }
+
+    #parentScreen .card {
+      background: linear-gradient(135deg, #ffffff, #f5f3ff);
+    }
+
+    #editScreen .card {
+      background: linear-gradient(135deg, #ffffff, #fff7ed);
+    }
+
     @media (max-width: 800px) {
-      .layout, .dashboard-grid { grid-template-columns: 1fr; }
+      .layout, 
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
     }
   </style>
 </head>
@@ -237,6 +343,7 @@
 
         <div id="roleChooser" class="hidden">
           <p class="subtitle">Choose whether you are a child or a parent.</p>
+
           <div class="home-buttons">
             <button class="primary big-button" onclick="showScreen('kid')">I am a child</button>
             <button class="big-button" onclick="showScreen('parent')">I am a parent</button>
@@ -275,6 +382,7 @@
               <h2 id="personTitle">FJ's chores</h2>
               <p class="subtitle" id="dateText"></p>
             </div>
+
             <div class="status-pill" id="personProgress">0/0 done</div>
           </div>
 
@@ -289,6 +397,7 @@
               <h2>Parent dashboard</h2>
               <p class="subtitle">See who completed what today.</p>
             </div>
+
             <div class="status-pill" id="totalProgress">0/0 completed</div>
           </div>
 
@@ -311,6 +420,7 @@
               <h2>Edit tasks</h2>
               <p class="subtitle">Add or delete chores. Changes save for everyone.</p>
             </div>
+
             <button onclick="showScreen('parent')">Back to parent page</button>
           </div>
 
@@ -346,6 +456,7 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+
     const database = firebase.database();
     const familyRef = database.ref("families/thejensens");
 
@@ -369,12 +480,12 @@
     let assignments = {};
     let currentDate = getTodayKey();
     let choreHistory = {};
-    let isSaving = false;
 
     function formatLocalDate(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
+
       return year + "-" + month + "-" + day;
     }
 
@@ -385,23 +496,28 @@
     function getDateNDaysAgo(daysAgo) {
       const date = new Date();
       date.setDate(date.getDate() - daysAgo);
+
       return formatLocalDate(date);
     }
 
     function shuffle(items) {
       const copy = [...items];
+
       for (let i = copy.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [copy[i], copy[j]] = [copy[j], copy[i]];
       }
+
       return copy;
     }
 
     function wasRecentlyAssigned(person, choreName) {
       const yesterday = getDateNDaysAgo(1);
       const twoDaysAgo = getDateNDaysAgo(2);
+
       const yesterdayChores = choreHistory[yesterday]?.[person] || [];
       const twoDaysAgoChores = choreHistory[twoDaysAgo]?.[person] || [];
+
       return yesterdayChores.includes(choreName) || twoDaysAgoChores.includes(choreName);
     }
 
@@ -419,6 +535,7 @@
 
         let chosenPerson = possiblePeople.find(person => {
           const hasTooMany = newAssignments[person].length >= maxChoresPerPerson;
+
           return !hasTooMany && !wasRecentlyAssigned(person, choreName);
         });
 
@@ -429,7 +546,9 @@
         }
 
         if (!chosenPerson) {
-          chosenPerson = possiblePeople.sort((a, b) => newAssignments[a].length - newAssignments[b].length)[0];
+          chosenPerson = possiblePeople.sort((a, b) => {
+            return newAssignments[a].length - newAssignments[b].length;
+          })[0];
         }
 
         newAssignments[chosenPerson].push({
@@ -453,7 +572,11 @@
     }
 
     function cleanOldHistory() {
-      const datesToKeep = [getTodayKey(), getDateNDaysAgo(1), getDateNDaysAgo(2)];
+      const datesToKeep = [
+        getTodayKey(),
+        getDateNDaysAgo(1),
+        getDateNDaysAgo(2)
+      ];
 
       Object.keys(choreHistory).forEach(date => {
         if (!datesToKeep.includes(date)) {
@@ -463,15 +586,11 @@
     }
 
     function saveToFirebase() {
-      isSaving = true;
-
       familyRef.set({
         date: currentDate,
         tasks: tasks,
         assignments: assignments,
         choreHistory: choreHistory
-      }).finally(() => {
-        isSaving = false;
       });
     }
 
@@ -596,8 +715,10 @@
 
     function toggleChore(index) {
       const chore = assignments[selectedPerson][index];
+
       chore.completed = !chore.completed;
       chore.completedAt = chore.completed ? new Date().toLocaleString() : null;
+
       saveToFirebase();
       render();
     }
@@ -608,7 +729,9 @@
 
       if (!newTask) return;
 
-      const alreadyExists = tasks.some(task => task.toLowerCase() === newTask.toLowerCase());
+      const alreadyExists = tasks.some(task => {
+        return task.toLowerCase() === newTask.toLowerCase();
+      });
 
       if (alreadyExists) {
         alert("That task already exists.");
@@ -617,6 +740,7 @@
 
       tasks.push(newTask);
       input.value = "";
+
       resetTodayAssignments();
     }
 
@@ -638,6 +762,7 @@
       if (!confirmDelete) return;
 
       tasks.splice(index, 1);
+
       resetTodayAssignments();
     }
 
@@ -647,11 +772,14 @@
 
       familyMembers.forEach(person => {
         const button = document.createElement("button");
+
         button.textContent = person;
         button.onclick = () => selectPerson(person);
+
         if (person === selectedPerson) {
           button.classList.add("active");
         }
+
         nameButtons.appendChild(button);
       });
     }
@@ -663,6 +791,7 @@
 
       const chores = assignments[selectedPerson] || [];
       const completed = chores.filter(chore => chore.completed).length;
+
       document.getElementById("personProgress").textContent = completed + "/" + chores.length + " done";
 
       const kidChores = document.getElementById("kidChores");
@@ -696,6 +825,7 @@
       familyMembers.forEach(person => {
         const chores = assignments[person] || [];
         const completed = chores.filter(chore => chore.completed).length;
+
         total += chores.length;
         completedTotal += completed;
 
@@ -714,6 +844,7 @@
           choreName.textContent = chore.name;
 
           const status = document.createElement("div");
+
           if (chore.completed) {
             status.className = "done-text";
             status.textContent = "Done: " + chore.completedAt;
